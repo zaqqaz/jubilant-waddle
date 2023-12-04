@@ -1,0 +1,17 @@
+{
+  "name": "jubilant-waddle",
+  "packageManager": "yarn@4.0.2",
+  "private": true,
+  "scripts": {
+    "cms": "ts-node --project tsconfig.cms.json cms.ts"
+  },
+  "workspaces": [
+    "blogs/*",
+    "cms"
+  ],
+  "devDependencies": {
+    "open": "8.4.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2"
+  }
+}
