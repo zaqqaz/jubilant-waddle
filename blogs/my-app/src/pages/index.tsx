@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import Head from 'next/head';
 import styled from 'styled-components';
-import fs from 'fs';
-import matter from 'gray-matter';
+import {getStaticPropsHomePage} from "@/helpers/getProps";
 
 const Container = styled.div`
   max-width: 900px;
@@ -54,7 +53,7 @@ const BlogLink = styled(Link)`
   }
 `;
 
-export default function Home({ blogs, currentPage, totalPages }) {
+export default function Home({blogs, currentPage, totalPages, relatedBlogs}) {
     return (
         <Container>
             <Head>
@@ -71,7 +70,7 @@ export default function Home({ blogs, currentPage, totalPages }) {
                     </BlogListItem>
                 ))}
             </BlogList>
-            <Pagination currentPage={currentPage} totalPages={totalPages} />
+            <Pagination currentPage={currentPage} totalPages={totalPages}/>
         </Container>
     );
 }
@@ -93,7 +92,7 @@ const PaginationLink = styled(Link)`
   }
 `;
 
-const Pagination = ({ currentPage, totalPages }) => {
+const Pagination = ({currentPage, totalPages}) => {
     const previousPage = currentPage > 1 ? currentPage - 1 : null;
     const nextPage = currentPage < totalPages ? currentPage + 1 : null;
 
@@ -114,35 +113,4 @@ const Pagination = ({ currentPage, totalPages }) => {
 };
 
 // Use 'getStaticProps' from styled component file
-export const getStaticProps = async function getStaticPropsHomePage({ params }) {
-    const currentPage = params?.page ? parseInt(params.page, 10) : 1;
-
-    // List of files in the blogs folder
-    const filesInBlogs = fs.readdirSync('./content/blogs');
-
-    // Get the front matter and slug (the filename without .md) of all files
-    const blogs = filesInBlogs.map((filename) => {
-        const file = fs.readFileSync(`./content/blogs/${filename}`, 'utf8');
-        const matterData = matter(file);
-
-        return {
-            ...matterData.data, // matterData.data contains front matter
-            slug: filename.slice(0, filename.indexOf('.')),
-        };
-    });
-
-    // Pagination logic
-    const itemsPerPage = 1;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedBlogs = blogs.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(blogs.length / itemsPerPage);
-
-    return {
-        props: {
-            blogs: paginatedBlogs,
-            currentPage,
-            totalPages,
-        },
-    };
-};
+export const getStaticProps = getStaticPropsHomePage

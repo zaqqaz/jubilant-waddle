@@ -2,6 +2,7 @@ import ReactMarkdown from 'react-markdown';
 import Head from 'next/head';
 import styled from 'styled-components';
 import { getStaticPropsPostPage, getStaticPathsPostPages } from '@/helpers/getProps';
+import {RelatedBlogs} from "@/components/RelatedBlogs";
 
 // Styled components with updated styles
 const BlogContainer = styled.div`
@@ -37,7 +38,7 @@ const MarkdownContent = styled(ReactMarkdown)`
 `;
 
 // Component
-export default function Blog({ frontmatter, markdown }) {
+export default function Blog({ frontmatter, markdown, relatedBlogs }) {
     const title = `${frontmatter.title} | My Blog`;
 
     return (
@@ -49,6 +50,7 @@ export default function Blog({ frontmatter, markdown }) {
             <BlogDate>{frontmatter.date}</BlogDate>
             <BlogDivider />
             <MarkdownContent>{markdown}</MarkdownContent>
+            <RelatedBlogs relatedBlogs={relatedBlogs}/>
         </BlogContainer>
     );
 }
