@@ -1,54 +1,58 @@
-import fs from 'fs'
-import ReactMarkdown from 'react-markdown'
-import matter from 'gray-matter'
-import Head from 'next/head'
+import ReactMarkdown from 'react-markdown';
+import Head from 'next/head';
+import styled from 'styled-components';
+import { getStaticPropsPostPage, getStaticPathsPostPages } from '@/helpers/getProps';
 
-export default function Blog({frontmatter, markdown}) {
-    const title = `${frontmatter.title} | my blog`;
+// Styled components with updated styles
+const BlogContainer = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+`;
+
+const BlogTitle = styled.h1`
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+`;
+
+const BlogDate = styled.span`
+  font-size: 1rem;
+  color: #7f8c8d;
+  display: block;
+  margin-bottom: 20px;
+`;
+
+const BlogDivider = styled.hr`
+  border: 1px solid #bdc3c7;
+  margin-bottom: 20px;
+`;
+
+const MarkdownContent = styled(ReactMarkdown)`
+  font-size: 1.2rem;
+  color: #333;
+`;
+
+// Component
+export default function Blog({ frontmatter, markdown }) {
+    const title = `${frontmatter.title} | My Blog`;
 
     return (
-        <div>
+        <BlogContainer>
             <Head>
                 <title>{title}</title>
             </Head>
-            <h1>{frontmatter.title}</h1>
-            <span>{frontmatter.date}</span>
-            <hr/>
-            <ReactMarkdown>
-                {markdown}
-            </ReactMarkdown>
-        </div>
-    )
+            <BlogTitle>{frontmatter.title}</BlogTitle>
+            <BlogDate>{frontmatter.date}</BlogDate>
+            <BlogDivider />
+            <MarkdownContent>{markdown}</MarkdownContent>
+        </BlogContainer>
+    );
 }
 
-export async function getStaticProps({params: {slug}}) {
-    const fileContent = matter(fs.readFileSync(`./content/blogs/${slug}.md`, 'utf8'))
-    let frontmatter = fileContent.data
-    const markdown = fileContent.content
-
-    return {
-        props: {frontmatter, markdown}
-    }
-}
-
-export async function getStaticPaths() {
-    const filesInProjects = fs.readdirSync('./content/blogs')
-
-    // Getting the filenames excluding .md extension
-    // and returning an array containing slug (the filename) as params for every route
-    // It looks like this
-    // paths = [
-    //   { params: { slug: 'my-first-blog' }},
-    //   { params: { slug: 'how-to-train-a-dragon' }},
-    //   { params: { slug: 'how-to-catch-a-pokemon' }},
-    // ]
-    const paths = filesInProjects.map(file => {
-        const filename = file.slice(0, file.indexOf('.'))
-        return {params: {slug: filename}}
-    })
-
-    return {
-        paths,
-        fallback: false // This shows a 404 page if the page is not found
-    }
-}
+// Use 'getStaticProps' and 'getStaticPaths' from styled component file
+export const getStaticProps = getStaticPropsPostPage;
+export const getStaticPaths = getStaticPathsPostPages;

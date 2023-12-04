@@ -6,8 +6,7 @@
     "cms": "ts-node --project tsconfig.cms.json cms.ts"
   },
   "workspaces": [
-    "blogs/*",
-    "cms"
+    "blogs/*"
   ],
   "devDependencies": {
     "open": "8.4.2",
