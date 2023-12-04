@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import Head from 'next/head';
 import styled from 'styled-components';
-import { getStaticPropsHomePage } from '@/helpers/getProps';
+import fs from 'fs';
+import matter from 'gray-matter';
 
-// Styled components with updated styles
 const Container = styled.div`
   max-width: 900px;
   margin: 0 auto;
@@ -54,8 +54,7 @@ const BlogLink = styled(Link)`
   }
 `;
 
-// Component
-export default function Home({ blogs }) {
+export default function Home({ blogs, currentPage, totalPages }) {
     return (
         <Container>
             <Head>
@@ -72,9 +71,78 @@ export default function Home({ blogs }) {
                     </BlogListItem>
                 ))}
             </BlogList>
+            <Pagination currentPage={currentPage} totalPages={totalPages} />
         </Container>
     );
 }
 
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
+const PaginationLink = styled(Link)`
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const Pagination = ({ currentPage, totalPages }) => {
+    const previousPage = currentPage > 1 ? currentPage - 1 : null;
+    const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+
+    return (
+        <PaginationContainer>
+            {previousPage && (
+                <PaginationLink href={`/pages/${previousPage}`}>
+                    Previous
+                </PaginationLink>
+            )}
+            {nextPage && (
+                <PaginationLink href={`/pages/${nextPage}`}>
+                    Next
+                </PaginationLink>
+            )}
+        </PaginationContainer>
+    );
+};
+
 // Use 'getStaticProps' from styled component file
-export const getStaticProps = getStaticPropsHomePage;
+export const getStaticProps = async function getStaticPropsHomePage({ params }) {
+    const currentPage = params?.page ? parseInt(params.page, 10) : 1;
+
+    // List of files in the blogs folder
+    const filesInBlogs = fs.readdirSync('./content/blogs');
+
+    // Get the front matter and slug (the filename without .md) of all files
+    const blogs = filesInBlogs.map((filename) => {
+        const file = fs.readFileSync(`./content/blogs/${filename}`, 'utf8');
+        const matterData = matter(file);
+
+        return {
+            ...matterData.data, // matterData.data contains front matter
+            slug: filename.slice(0, filename.indexOf('.')),
+        };
+    });
+
+    // Pagination logic
+    const itemsPerPage = 1;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedBlogs = blogs.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(blogs.length / itemsPerPage);
+
+    return {
+        props: {
+            blogs: paginatedBlogs,
+            currentPage,
+            totalPages,
+        },
+    };
+};
